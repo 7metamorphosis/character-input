@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>输入框</title>
+  <style>
+    .input{
+      /* display: none; 不能触发input聚焦*/
+      /* visibility: hidden; 不能触发input聚焦*/
+      /* opacity: 0; 可以触发input聚焦*/
+      position: absolute;
+      top: -999px;
+      left: -999px;
+    }
+    .tips{
+      font-size: 20px;
+      text-align: center;
+      line-height: 40px;
+    }
+
+    /* 使用display:inline-block布局 */
+    .input-box{
+      position: relative;
+      width: 500px;
+      margin: 0 auto;
+      border: 1px solid blue;
+      font-size: 0;
+    }
+    .input-item{
+      position: relative;
+      display: inline-block;
+      box-sizing: border-box;
+      width: 80px;
+      border: 1px solid red;
+      font-size: 16px;
+      text-align: center;
+      vertical-align: middle;
+    }
+    .blink-line{
+      display: none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 2px;
+      height: 40px;
+      transform: translate(-50%, -50%);
+      background: red;
+      animation: blink 1s steps(2) infinite;
+    }
+    .blink-line.active{
+      display: block;
+    }
+    .character{
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .input-item:after{
+      content: '';
+      display: block;
+      padding-bottom: 100%;
+    }
+    @keyframes blink {
+      0%{
+        opacity: 0;
+      }
+      100%{
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <input class="input" type="text" onkeydown="getInputVal()">
+  <div class="tips">点击输入字母、数字</div>
+  <div class="input-box">
+    <span class="input-item"><i class="blink-line"></i><i class="character"></i></span>
+    <span class="input-item"><i class="blink-line"></i><i class="character"></i></span>
+    <span class="input-item"><i class="blink-line"></i><i class="character"></i></span>
+    <span class="input-item"><i class="blink-line"></i><i class="character"></i></span>
+  </div>
+  <script>
+    const inputEle = document.querySelectorAll('.input')[0],
+          inputBox = document.querySelectorAll('.input-box')[0],
+          inputItems = document.querySelectorAll('.input-item');
+    let inputVal = '';
+
+    // 点击inputBox时触发inputEle聚焦事件
+    inputBox.addEventListener('click', function(event){
+      // console.log('1111', inputEle);
+      inputEle.focus();
+      // 让第一个输入框的光标闪烁
+      inputItems[0].querySelectorAll('.blink-line')[0].className = 'blink-line active';
+    })
+
+    // 点击键盘时获取input中输入的值
+    function getInputVal(){
+      if(window.event){
+        // 获取输入的字母、数字
+        if(event.key.length === 1 && /[0-9a-zA-Z]/.test(event.key)){
+          // 当输入值超过输入框的个数时不再获取输入值
+          if(inputVal.length < 4){
+            inputVal += event.key;
+            // console.log('2222', event, inputVal);
+            // 将获取的input值依次放入到span中
+            if(inputVal||inputVal.length){
+              // 将对应的字符输入到对应的输入框中
+              inputItems[inputVal.length-1].querySelectorAll('.character')[0].innerHTML = inputVal.charAt(inputVal.length-1);
+              // 将所有输入框的光标取消
+              Array.from(inputItems).forEach((item) => {
+                // console.log('4444', item);
+                item.querySelectorAll('.blink-line')[0].className = 'blink-line';
+              })
+              // 只让即将输入的输入框的光标显示
+              inputItems[inputVal.length] && (inputItems[inputVal.length].querySelectorAll('.blink-line')[0].className = 'blink-line active');
+            }
+          }
+        }else if(event.key.toLowerCase() === 'backspace' || event.key.toLowerCase() === 'delete'){
+          // 删除输入的内容
+          if(inputVal.length !== 0){
+            inputVal = inputVal.slice(0, inputVal.length-1);
+            // console.log('3333', event, inputVal);
+            inputItems[inputVal.length].querySelectorAll('.character')[0].innerHTML = '';
+            // 将所有输入框的光标取消
+            Array.from(inputItems).forEach((item) => {
+              item.querySelectorAll('.blink-line')[0].className = 'blink-line';
+            })
+            // 让当前删除的输入框的光标显示
+            inputItems[inputVal.length] && (inputItems[inputVal.length].querySelectorAll('.blink-line')[0].className = 'blink-line active');
+          }
+        }
+      }
+    }
+
+  </script>
+</body>
+</html>
